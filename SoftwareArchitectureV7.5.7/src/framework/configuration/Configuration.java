@@ -207,8 +207,6 @@ public class Configuration {
 			}
 		}
 		
-		
-		
 	
 		ArrayList<String> actions = new ArrayList<>(
 				Arrays.asList(remainingBehaviour.split(Utils.PREFIX_ACTION)));
@@ -220,16 +218,12 @@ public class Configuration {
 			
 			runtimeGraph.addVertex(src);
 			runtimeGraph.addVertex(des);
-			runtimeGraph.addEdge(src, des, new ActionEdge(action, new Queue()));
-			//System.out.println("src: " + src + " Action: " + action + " des: " + des);
-			
+			runtimeGraph.addEdge(src, des, new ActionEdge(action, new Queue()));			
 			
 			if(i+1 == (actions.size()-1)) {
 				src = i+1;
 				des = 0;
-				
 				runtimeGraph.addEdge(src, des, new ActionEdge((e.getIdentification().getName() + "." + actions.get(src)).trim(), new Queue()));
-				//System.out.println("src: " + src + " Action: " + action + " des: " + des);
 			}
 		}
 		
