@@ -193,37 +193,75 @@ public class Configuration {
 		DirectedGraph<Integer, ActionEdge> runtimeGraph = new DefaultDirectedGraph<>(ActionEdge.class);
 		int count = 0;
 		boolean hasAction = true;
+		ArrayList<String> actions;
+		ArrayList<String> choices;
 		String nextAction;
 		String action;
+		String act;
 		String[] expressions = null;
 		String remainingBehaviour = e.getSemantics().getStandardBehaviour().getActions();
 		System.out.println(remainingBehaviour);
 		
 		if(remainingBehaviour.contains("[]")) {
-			expressions = remainingBehaviour.split("\\[]");
 			
-			for(int i=0; i<expressions.length; i++) {
+			actions = new ArrayList<>(
+					Arrays.asList(remainingBehaviour.split(Utils.PREFIX_ACTION)));
+			
+			for(int i=0; i<(actions.size()-1); i++) {
+				int src = i;
+				int des = i+1;
 				
-			}
-		}
-		
-	
-		ArrayList<String> actions = new ArrayList<>(
-				Arrays.asList(remainingBehaviour.split(Utils.PREFIX_ACTION)));
-		
-		for(int i=0; i<(actions.size()-1); i++) {
-			int src = i;
-			int des = i+1;
-			action = (e.getIdentification().getName() + "." + actions.get(src)).trim();
+				if(actions.get(src).contains("[]")) {
+					ArrayList<String> acts = new ArrayList<>(Arrays.asList(actions.get(src).split("\\[]")));
+					for(int j=0; j<acts.size(); j++) {
+						act = (e.getIdentification().getName() + "." + acts.get(j)).trim();
+						runtimeGraph.addVertex(src);
+						runtimeGraph.addVertex(des);
+						runtimeGraph.addEdge(src, des, new ActionEdge(act, new Queue()));
+					}
+				} else {
+					action = (e.getIdentification().getName() + "." + actions.get(src)).trim();
+					runtimeGraph.addVertex(src);
+					runtimeGraph.addVertex(des);
+					runtimeGraph.addEdge(src, des, new ActionEdge(action, new Queue()));
+				}
+				
+				if(i+1 == (actions.size()-1)) {
+					src = i+1;
+					des = 0;
+					
+					if(actions.get(src).contains("[]")) {
+						ArrayList<String> acts = new ArrayList<>(Arrays.asList(actions.get(src).split("\\[]")));
+						for(int j=0; j<acts.size(); j++) {
+							act = (e.getIdentification().getName() + "." + acts.get(j)).trim();
+							runtimeGraph.addVertex(src);
+							runtimeGraph.addVertex(des);
+							runtimeGraph.addEdge(src, des, new ActionEdge(act, new Queue()));
+						}
+					} else {
+						runtimeGraph.addEdge(src, des, new ActionEdge((e.getIdentification().getName() + 
+								"." + actions.get(src)).trim(), new Queue()));
+					}
+				}
+			}	
+		} else {
+			actions = new ArrayList<>(
+					Arrays.asList(remainingBehaviour.split(Utils.PREFIX_ACTION)));
 			
-			runtimeGraph.addVertex(src);
-			runtimeGraph.addVertex(des);
-			runtimeGraph.addEdge(src, des, new ActionEdge(action, new Queue()));			
-			
-			if(i+1 == (actions.size()-1)) {
-				src = i+1;
-				des = 0;
-				runtimeGraph.addEdge(src, des, new ActionEdge((e.getIdentification().getName() + "." + actions.get(src)).trim(), new Queue()));
+			for(int i=0; i<(actions.size()-1); i++) {
+				int src = i;
+				int des = i+1;
+				action = (e.getIdentification().getName() + "." + actions.get(src)).trim();
+				
+				runtimeGraph.addVertex(src);
+				runtimeGraph.addVertex(des);
+				runtimeGraph.addEdge(src, des, new ActionEdge(action, new Queue()));			
+				
+				if(i+1 == (actions.size()-1)) {
+					src = i+1;
+					des = 0;
+					runtimeGraph.addEdge(src, des, new ActionEdge((e.getIdentification().getName() + "." + actions.get(src)).trim(), new Queue()));
+				}
 			}
 		}
 		
