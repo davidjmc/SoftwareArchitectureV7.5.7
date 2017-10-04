@@ -1,0 +1,19 @@
+datatype PROCNAMES = client | server1 | t0 
+
+channel i_PosInvP,i_PosInvR,i_PosTerP,i_PosTerR,i_PreInvP,i_PreInvR,i_PreTerP
+
+channel invP,invR,terP,terR : PROCNAMES
+
+SERVER1 = i_PreInvP->invP.server1->i_PosInvP->i_PreTerP->terP.server1->i_PosTerP -> SERVER1
+T0 = invP.client->i_PosInvP->i_PreInvR->invR.server1->terR.server1->i_PosTerR->i_PreTerP->terP.client -> T0
+CLIENT = i_PreInvR->invR.client->i_PosInvR->terR.client->i_PosTerR -> CLIENT
+
+
+P1 = (CLIENT|||SERVER1) 
+[|{|invP,invR,terP,terR|}|]
+(T0[[invP<-invR,invR<-invP,terP<-terR,terR<-terP]])
+
+assert CLIENT :[deadlock free]
+assert T0 :[deadlock free]
+assert SERVER1 :[deadlock free]
+assert P1 :[deadlock free]
