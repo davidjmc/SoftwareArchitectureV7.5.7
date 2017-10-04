@@ -213,7 +213,8 @@ public class Configuration {
 		Machine machine;
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		String remainingBehaviour = e.getSemantics().getStandardBehaviour().getActions();
-		//System.out.println(remainingBehaviour);
+		
+		System.out.println(remainingBehaviour);
 		
 		Session session = new Session();
 		session.loadFile(Utils.CSP_DIR + "/" + "conf.csp");
@@ -373,13 +374,12 @@ public class Configuration {
 			} 
 		}*/
 			
-		while (hasAction) {
+/*	while (hasAction) {
 			nextAction = (e.getIdentification().getName() + "."
 					+ remainingBehaviour.substring(0, remainingBehaviour.indexOf(Utils.PREFIX_ACTION))).trim();
 			runtimeGraph.addVertex(count);
 			runtimeGraph.addVertex(count + 1);
 			runtimeGraph.addEdge(count, count + 1, new ActionEdge(nextAction, new Queue()));
-			System.out.println(count + nextAction + count+1);
 			
 			remainingBehaviour = remainingBehaviour.substring(
 					remainingBehaviour.indexOf(Utils.PREFIX_ACTION) + Utils.PREFIX_ACTION.length(),
@@ -388,13 +388,12 @@ public class Configuration {
 				hasAction = false;
 				runtimeGraph.addEdge(count + 1, 0, new ActionEdge(
 						(e.getIdentification().getName() + "." + remainingBehaviour).trim(), new Queue())); // last
-				System.out.println(count+1 + (e.getIdentification().getName() + "." + remainingBehaviour).trim() + 0);
 			} else {
 				count++;
 				nextAction = remainingBehaviour.substring(0, remainingBehaviour.indexOf(Utils.PREFIX_ACTION)).trim();
 			}
 
-		}
+		}*/
 
 		// adjusts action's queues to keep action, pre*action and pos*action the
 		// same
@@ -407,12 +406,16 @@ public class Configuration {
 		while (it.hasNext()) {
 			ActionEdge edge = it.next();
 			String a = edge.getAction();
+			System.out.println("a: " + a);
 
 			previousAction = currentAction;
-			if (a.contains("i_"))
+			if (a.contains("i_")) {
 				currentAction = a.substring(a.indexOf(".") + 1, a.length()).toLowerCase();
-			else
+				System.out.println("currentAction: " + currentAction);
+			}else{
 				currentAction = a.substring(a.indexOf(".") + 1, a.lastIndexOf(".")).toLowerCase();
+				System.out.println("currentAction: " + currentAction);
+			}
 
 			if (currentAction.contains("i_pre"))
 				tempQueue = edge.getQueue();
@@ -448,12 +451,10 @@ public class Configuration {
 			destinationID = 0;
 		}
 
-		System.out.println("==");
-		System.out.println(nodeID + " -> " + e.getIdentification().getName() + "." + event + " -> " + destinationID);
-		
-		//runtimeGraph.addVertex(nodeID);
-		//runtimeGraph.addVertex(destinationID);
-		//runtimeGraph.addEdge(nodeID, destinationID, new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));
+		//System.out.println("aaa: " + e.getIdentification().getName() + "." + event);
+		runtimeGraph.addVertex(nodeID);
+		runtimeGraph.addVertex(destinationID);
+		runtimeGraph.addEdge(nodeID, destinationID, new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));
 		
 		TransitionList childList = machine.transitions(destination);
 
