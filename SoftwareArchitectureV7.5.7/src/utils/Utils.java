@@ -92,7 +92,7 @@ public class Utils {
 	public static final String PROM_XES_FILE = "log-middleware.xes";
 	public static final String PROM_DATA_FILE = "log-middleware.data";
 	public static final String LOG_SERVER_HOST = "localhost";
-	public static final String CSP_DIR = "/home/david/David/Doutorado/csp/orig";
+	public static final String CSP_DIR = "/home/david/Doutorado/project";
 
 	public static final String SCRIPTS_DIR = "/Users/nsr/Dropbox/bam/scripts";
 	public static final String PROPERTY_DIR = "/Users/nsr/Dropbox/bam/properties";

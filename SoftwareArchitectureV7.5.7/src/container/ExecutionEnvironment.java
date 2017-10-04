@@ -39,7 +39,7 @@ public class ExecutionEnvironment {
 		parameters.put("prom-delay-between-checking", Utils.DELAY_BETWEEN_CHECKING);
 		parameters.put("csp-prefix-action", "->");
 		//parameters.put("csp-dir", "/Users/nsr/Dropbox/research/specification/csp");
-		parameters.put("csp-dir", "/home/david/David/Doutorado/csp/orig");
+		parameters.put("csp-dir", Utils.CSP_DIR);
 		parameters.put("prom-property", "eventually_activity_A_then_B");
 		parameters.put("prom-property-parameter-a", "client_i_PreInvR");
 		parameters.put("prom-property-parameter-b", "server_i_PosInvP");
