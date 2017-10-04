@@ -3,6 +3,7 @@ package container.csp;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -23,7 +24,8 @@ public class CSPSpecification {
 	private String processesExp;
 	private String compositeExp;
 	private String assertionsExp;
-	private ExecutionEnvironment env;
+	public ExecutionEnvironment env;
+	private ArrayList<String> assertions = new ArrayList<String>();
 
 	public CSPSpecification(ExecutionEnvironment e) {
 		this.dataTypeExp = new String("datatype PROCNAMES = ");
@@ -33,6 +35,106 @@ public class CSPSpecification {
 		this.compositeExp = new String("P1 = ");
 		this.assertionsExp = new String(e.getParameters().get("csp-deadlock-assertion").toString());
 		this.env = e;
+	}
+		
+	
+
+	public void cr() {
+		String[] processAlphabet;
+		String processName;
+		String processBehaviour;
+		HashMap<String, Element> processes = new HashMap<String, Element>();
+		Set<String> typedChannelSet = new TreeSet<String>();
+		Set<String> untypedChannelSet = new TreeSet<String>();
+		Set<String> dataTypeSet = new TreeSet<String>();
+		Set<String> components = new TreeSet<String>();
+		Set<String> connectors = new TreeSet<String>();
+		Configuration conf = env.getConf();
+		
+		for (Element element : conf.getStructure().vertexSet()) {
+			processName = element.getIdentification().getName().toUpperCase();
+			assertions.add(processName);
+			
+			if (element instanceof Component)
+				components.add(processName);
+			if (element instanceof Connector)
+				connectors.add(processName);
+
+			// datatypes
+			if (!dataTypeSet.contains(processName))
+				dataTypeSet.add(processName.toLowerCase());
+			
+			// processes
+			processBehaviour = element.getSemantics().getRuntimeBehaviour().getActions();
+			processes.put(processName, element);
+			
+			// channels
+			processAlphabet = processBehaviour.split(env.getParameters().get("csp-prefix-action").toString());
+			
+			for (String event : processAlphabet) {
+				event = event.trim();
+				if (!event.contains("i_")) {
+					event = event.substring(0, event.indexOf("."));
+					if (!typedChannelSet.contains(event))
+						typedChannelSet.add(event);
+				} else if (!untypedChannelSet.contains(event))
+					untypedChannelSet.add(event);
+			}
+		}
+		
+		// data set expression
+		Iterator<String> itDataType = dataTypeSet.iterator();
+		while (itDataType.hasNext()) {
+			this.dataTypeExp = this.dataTypeExp + itDataType.next() + " | ";
+		}
+		this.dataTypeExp = this.dataTypeExp.substring(0, this.dataTypeExp.lastIndexOf("|"));
+		
+		// channel expressions
+		// -- untyped channels
+		Iterator<String> itUntypedChannels = untypedChannelSet.iterator();
+		while (itUntypedChannels.hasNext()) {
+			String channelName = itUntypedChannels.next();
+			this.untypedChannelsExp = this.untypedChannelsExp + channelName + ",";
+		}
+		this.untypedChannelsExp = this.untypedChannelsExp.substring(0, this.untypedChannelsExp.lastIndexOf(","));
+
+		// -- typed channels
+		Iterator<String> itTypedChannels = typedChannelSet.iterator();
+		while (itTypedChannels.hasNext()) {
+			String channelName = itTypedChannels.next();
+			this.typedChannelsExp = this.typedChannelsExp + channelName + ",";
+		}
+		this.typedChannelsExp = this.typedChannelsExp.substring(0, this.typedChannelsExp.lastIndexOf(","));
+
+		// --- process expression
+		HashMap<String, String> newBehaviours = new HashMap<String, String>();
+		
+		for(String process: processes.keySet()) {
+			Element tempElement = processes.get(process);
+			String behaviour = tempElement.getSemantics().getRuntimeBehaviour().getActions();
+			String[] actions = behaviour.split(Utils.PREFIX_ACTION);
+	
+			if(tempElement instanceof Component) {
+				for(String action: actions) {
+					if (!action.contains("i_")) {
+						String value = process.toLowerCase();
+						String pair = action.substring(action.indexOf(".") + 1, action.length());
+						behaviour = behaviour.replace(pair, value);
+					}
+				}
+			} else {
+				for (String action : actions) {
+					if (!action.contains("i_")) {
+						String key = process.toLowerCase() + "."
+								+ action.substring(action.indexOf(".") + 1, action.length());
+						String value = env.getExecutionManager().geteMaps().get(key);
+						String pair = key.substring(key.indexOf(".") + 1, key.length());
+						behaviour = behaviour.replace(pair, value);
+					}
+				}
+			}
+		}
+
 	}
 
 	public void create() {
@@ -49,6 +151,7 @@ public class CSPSpecification {
 
 		for (Element element : conf.getStructure().vertexSet()) {
 			processName = element.getIdentification().getName().toUpperCase();
+			assertions.add(processName);
 
 			if (element instanceof Component)
 				components.add(processName);
@@ -102,6 +205,7 @@ public class CSPSpecification {
 
 		// --- process expression
 		HashMap<String, String> newBehaviours = new HashMap<String, String>();
+		
 		for (String process : processes.keySet()) {
 			Element tempElement = processes.get(process);
 			String behaviour = tempElement.getSemantics().getRuntimeBehaviour().getActions();
@@ -279,8 +383,10 @@ public class CSPSpecification {
 			writer.println(this.processesExp);
 			writer.println("");
 			writer.println(this.compositeExp);
-			writer.println("");
-			writer.print(this.assertionsExp);
+			for(String assertion: assertions) {
+				writer.println("assert " + assertion + " :[deadlock free]");
+			}
+			writer.println(this.assertionsExp);
 			writer.close();
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block

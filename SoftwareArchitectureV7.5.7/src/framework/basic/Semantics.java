@@ -39,7 +39,8 @@ public class Semantics {
 
 	public boolean checkSyntax(String behaviour) {
 		boolean r = true;
-		String[] actions = behaviour.split("->");
+		String[] actions = behaviour.split("\\->|\\[]");
+		//String[] actions = behaviour.split("->");
 		Set<String> possibleActions = new TreeSet<String>();
 
 		for (String a : Utils.SET_OF_ACTIONS)
