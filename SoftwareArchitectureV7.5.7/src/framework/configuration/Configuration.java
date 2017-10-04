@@ -1,7 +1,10 @@
 package framework.configuration;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -66,6 +69,9 @@ public class Configuration {
 		Element from, to;
 		DirectedGraph<Integer, ActionEdge> fromBehaviourGraph = new DefaultDirectedGraph<>(ActionEdge.class);
 		DirectedGraph<Integer, ActionEdge> toBehaviourGraph = new DefaultDirectedGraph<>(ActionEdge.class);
+		
+		// david todo
+		createCspFile();
 	
 		// -------- create runtime graphs
 		for (StructureEdge edgeTemp : env.getConf().getStructure().edgeSet()) {
@@ -81,6 +87,71 @@ public class Configuration {
 		}
 	}
 	
+	private void createCspFile() {
+		Iterator<Element> itElements;
+		Element element;
+		
+		String dataTypeExp = new String("datatype PROCNAMES = ");
+		String typedChannelsExp = new String("channel ");
+		String untypedChannelsExp = new String("channel ");
+		
+		itElements = this.structure.vertexSet().iterator();
+		while (itElements.hasNext()) {
+			element = itElements.next();
+			System.out.println(element.getIdentification().getName().toUpperCase());
+		}
+		
+		String cspFileName = Utils.CSP_DIR + "/" + "test.csp";
+		
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter(cspFileName, "UTF-8");
+			
+			itElements = this.structure.vertexSet().iterator();
+			while (itElements.hasNext()) {
+				element = itElements.next();
+				String behaviour = element.getSemantics().getStandardBehaviour().getActions();
+				
+				ArrayList ch = new ArrayList<>(
+						Arrays.asList(behaviour.split(Utils.PREFIX_ACTION)));
+				
+			}
+
+			/*writer.println(this.dataTypeExp);
+			writer.println("");
+			writer.println(this.untypedChannelsExp);
+			writer.println("");
+			writer.println(this.typedChannelsExp + " : PROCNAMES");
+			writer.println("");
+			writer.println(this.processesExp);
+			writer.println("");
+			writer.println(this.compositeExp);
+			*/
+			
+			itElements = this.structure.vertexSet().iterator();
+			while (itElements.hasNext()) {
+				element = itElements.next();
+				writer.println(element.getIdentification().getName().toUpperCase() + 
+						" = " + 
+						element.getSemantics().getStandardBehaviour().getActions() +
+						" -> " + element.getIdentification().getName().toUpperCase());
+			}
+			
+			writer.println("");
+			
+			itElements = this.structure.vertexSet().iterator();
+			while (itElements.hasNext()) {
+				element = itElements.next();
+				writer.println("assert " + element.getIdentification().getName().toUpperCase() + " :[deadlock free]");
+			}
+			
+			writer.close();
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	public void OLDconfigure(ExecutionEnvironment env) {
 		Element from, to;
 		HashMap<String, HashMap<String, String>> relabelMap = new HashMap<String, HashMap<String, String>>();

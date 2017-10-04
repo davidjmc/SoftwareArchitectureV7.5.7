@@ -1,0 +1,7 @@
+CLIENT = i_PreInvR->invR.e1->i_PosInvR->terR.e1->i_PosTerR -> CLIENT
+T0 = invP.e1->i_PosInvP->i_PreInvR->invR.e2->terR.e2->i_PosTerR->i_PreTerP->terP.e1 -> T0
+SERVER1 = i_PreInvP->invP.e1->i_PosInvP->i_PreTerP->terP.e1->i_PosTerP -> SERVER1
+
+assert CLIENT :[deadlock free]
+assert T0 :[deadlock free]
+assert SERVER1 :[deadlock free]
