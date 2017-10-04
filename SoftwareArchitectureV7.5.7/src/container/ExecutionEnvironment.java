@@ -37,7 +37,8 @@ public class ExecutionEnvironment {
 	public void configureParameters() {
 		parameters.put("prom-delay-first-checking", Utils.DELAY_FIRST_CHECKING);
 		parameters.put("prom-delay-between-checking", Utils.DELAY_BETWEEN_CHECKING);
-		parameters.put("csp-prefix-action", "->");
+		//parameters.put("csp-prefix-action", "->");
+		parameters.put("csp-prefix-action", "\\->|\\[]");
 		//parameters.put("csp-dir", "/Users/nsr/Dropbox/research/specification/csp");
 		parameters.put("csp-dir", Utils.CSP_DIR);
 		parameters.put("prom-property", "eventually_activity_A_then_B");
@@ -66,16 +67,17 @@ public class ExecutionEnvironment {
 		// configure parameters
 		this.configureParameters();		
 		
+		CSPSpecification csp = new CSPSpecification(this);
+		//csp.cr();
+		
 		// configure execution environment
 		executionManager.configure();
-		
-
+	
 		// behavioral check
-	CSPSpecification csp = new CSPSpecification(this);
+		
 		csp.create();
 		csp.save();
 		csp.check();
-
 		
 		// structural check // TODO
 		this.conf.check();
