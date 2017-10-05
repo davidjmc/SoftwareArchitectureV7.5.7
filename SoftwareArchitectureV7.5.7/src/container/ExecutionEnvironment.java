@@ -74,7 +74,6 @@ public class ExecutionEnvironment {
 		executionManager.configure();
 	
 		// behavioral check
-		
 		csp.create();
 		csp.save();
 		csp.check();
