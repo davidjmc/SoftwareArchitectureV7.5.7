@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -209,7 +210,15 @@ public class CSPSpecification {
 		for (String process : processes.keySet()) {
 			Element tempElement = processes.get(process);
 			String behaviour = tempElement.getSemantics().getRuntimeBehaviour().getActions();
-			String[] actions = behaviour.split(Utils.PREFIX_ACTION);
+			//String[] actions = behaviour.split(Utils.PREFIX_ACTION);
+			
+			if(behaviour.contains(Utils.CHOICE_ACTION)) {
+				ArrayList sub = new ArrayList<>(
+						Arrays.asList(behaviour.split(Utils.CHOICE_ACTION)));
+				
+			}
+			
+			String[] actions = behaviour.split(Utils.REGEX_ACTION);
 			if (tempElement instanceof Component) {
 				for (String action : actions) {
 					if (!action.contains("i_")) {
@@ -231,7 +240,28 @@ public class CSPSpecification {
 			}
 			newBehaviours.putIfAbsent(process, behaviour);
 		}
-
+		
+		/*for(String p : processes.keySet()) {
+			Element tempElement = processes.get(p);
+			String behaviour = tempElement.getSemantics().getRuntimeBehaviour().getActions();
+			
+			if(behaviour.contains(Utils.CHOICE_ACTION)) {
+				
+				
+				for(String s: sub.) {
+					
+				}
+				
+				for (String process : newBehaviours.keySet()) {
+					this.processesExp = this.processesExp + process + " = " + newBehaviours.get(process) + " -> " + process;
+					this.processesExp = this.processesExp + "\n";
+				}
+			} else {
+				
+			}
+		}
+*/
+		
 		for (String process : newBehaviours.keySet()) {
 			this.processesExp = this.processesExp + process + " = " + newBehaviours.get(process) + " -> " + process;
 			this.processesExp = this.processesExp + "\n";

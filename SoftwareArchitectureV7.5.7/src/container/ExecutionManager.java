@@ -1,19 +1,28 @@
 package container;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
 import org.jgrapht.DirectedGraph;
+import org.jgrapht.graph.DefaultDirectedGraph;
 
 import container.csp.CSPSpecification;
 import framework.basic.Element;
+import framework.basic.RuntimeInfo;
 import framework.configuration.ActionEdge;
+import framework.configuration.Configuration;
 import framework.configuration.StructureEdge;
+import utils.Utils;
 
 public class ExecutionManager {
 	private volatile ExecutionEnvironment env;
@@ -51,9 +60,72 @@ public class ExecutionManager {
 	}
 
 	public void configure() {
+		createCSPFile(this.env.getConf());
 		this.env.getConf().configure(this.env);
 		createExecutionUnits(this.env);
 		createQueues(this.env, 1);
+	}
+
+	private void createCSPFile(Configuration c) {
+		Iterator<Element> itElements;
+		Element element;
+		Set<String> dataTypeSet = new TreeSet<String>();
+		
+		String dataTypeExp = new String("datatype PROCNAMES = ");
+		String typedChannelsExp = new String("channel ");
+		String untypedChannelsExp = new String("channel ");
+		
+		String cspFileName = Utils.CSP_DIR + "/" + "test.csp";
+		
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter(cspFileName, "UTF-8");
+			
+			itElements = c.getStructure().vertexSet().iterator();
+			while (itElements.hasNext()) {
+				element = itElements.next();
+				String behaviour = element.getSemantics().getStandardBehaviour().getActions();
+				
+				ArrayList ch = new ArrayList<>(
+						Arrays.asList(behaviour.split(Utils.PREFIX_ACTION)));
+				
+				
+				
+			}
+
+			/*writer.println(this.dataTypeExp);
+			writer.println("");
+			writer.println(this.untypedChannelsExp);
+			writer.println("");
+			writer.println(this.typedChannelsExp + " : PROCNAMES");
+			writer.println("");
+			writer.println(this.processesExp);
+			writer.println("");
+			writer.println(this.compositeExp);
+			*/
+			
+			itElements = c.getStructure().vertexSet().iterator();
+			while (itElements.hasNext()) {
+				element = itElements.next();
+				writer.println(element.getIdentification().getName().toUpperCase() + 
+						" = " + 
+						element.getSemantics().getStandardBehaviour().getActions() +
+						" -> " + element.getIdentification().getName().toUpperCase());
+			}
+			
+			writer.println("");
+			
+			itElements = c.getStructure().vertexSet().iterator();
+			while (itElements.hasNext()) {
+				element = itElements.next();
+				writer.println("assert " + element.getIdentification().getName().toUpperCase() + " :[deadlock free]");
+			}
+			
+			writer.close();
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void execute() {

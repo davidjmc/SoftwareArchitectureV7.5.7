@@ -70,9 +70,6 @@ public class Configuration {
 		DirectedGraph<Integer, ActionEdge> fromBehaviourGraph = new DefaultDirectedGraph<>(ActionEdge.class);
 		DirectedGraph<Integer, ActionEdge> toBehaviourGraph = new DefaultDirectedGraph<>(ActionEdge.class);
 		
-		// david todo
-		createCspFile();
-	
 		// -------- create runtime graphs
 		for (StructureEdge edgeTemp : env.getConf().getStructure().edgeSet()) {
 			from = (Element) edgeTemp.getS();			
@@ -87,71 +84,6 @@ public class Configuration {
 		}
 	}
 	
-	private void createCspFile() {
-		Iterator<Element> itElements;
-		Element element;
-		
-		String dataTypeExp = new String("datatype PROCNAMES = ");
-		String typedChannelsExp = new String("channel ");
-		String untypedChannelsExp = new String("channel ");
-		
-		itElements = this.structure.vertexSet().iterator();
-		while (itElements.hasNext()) {
-			element = itElements.next();
-			System.out.println(element.getIdentification().getName().toUpperCase());
-		}
-		
-		String cspFileName = Utils.CSP_DIR + "/" + "test.csp";
-		
-		PrintWriter writer;
-		try {
-			writer = new PrintWriter(cspFileName, "UTF-8");
-			
-			itElements = this.structure.vertexSet().iterator();
-			while (itElements.hasNext()) {
-				element = itElements.next();
-				String behaviour = element.getSemantics().getStandardBehaviour().getActions();
-				
-				ArrayList ch = new ArrayList<>(
-						Arrays.asList(behaviour.split(Utils.PREFIX_ACTION)));
-				
-			}
-
-			/*writer.println(this.dataTypeExp);
-			writer.println("");
-			writer.println(this.untypedChannelsExp);
-			writer.println("");
-			writer.println(this.typedChannelsExp + " : PROCNAMES");
-			writer.println("");
-			writer.println(this.processesExp);
-			writer.println("");
-			writer.println(this.compositeExp);
-			*/
-			
-			itElements = this.structure.vertexSet().iterator();
-			while (itElements.hasNext()) {
-				element = itElements.next();
-				writer.println(element.getIdentification().getName().toUpperCase() + 
-						" = " + 
-						element.getSemantics().getStandardBehaviour().getActions() +
-						" -> " + element.getIdentification().getName().toUpperCase());
-			}
-			
-			writer.println("");
-			
-			itElements = this.structure.vertexSet().iterator();
-			while (itElements.hasNext()) {
-				element = itElements.next();
-				writer.println("assert " + element.getIdentification().getName().toUpperCase() + " :[deadlock free]");
-			}
-			
-			writer.close();
-		} catch (FileNotFoundException | UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
 	public void OLDconfigure(ExecutionEnvironment env) {
 		Element from, to;
 		HashMap<String, HashMap<String, String>> relabelMap = new HashMap<String, HashMap<String, String>>();
@@ -284,8 +216,7 @@ public class Configuration {
 		Machine machine;
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		String remainingBehaviour = e.getSemantics().getStandardBehaviour().getActions();
-		
-		System.out.println(remainingBehaviour);
+		System.out.println("dasda: " + remainingBehaviour);
 		
 		Session session = new Session();
 		session.loadFile(Utils.CSP_DIR + "/" + "conf.csp");
@@ -477,15 +408,12 @@ public class Configuration {
 		while (it.hasNext()) {
 			ActionEdge edge = it.next();
 			String a = edge.getAction();
-			System.out.println("a: " + a);
 
 			previousAction = currentAction;
 			if (a.contains("i_")) {
 				currentAction = a.substring(a.indexOf(".") + 1, a.length()).toLowerCase();
-				System.out.println("currentAction: " + currentAction);
 			}else{
 				currentAction = a.substring(a.indexOf(".") + 1, a.lastIndexOf(".")).toLowerCase();
-				System.out.println("currentAction: " + currentAction);
 			}
 
 			if (currentAction.contains("i_pre"))
@@ -522,7 +450,6 @@ public class Configuration {
 			destinationID = 0;
 		}
 
-		//System.out.println("aaa: " + e.getIdentification().getName() + "." + event);
 		runtimeGraph.addVertex(nodeID);
 		runtimeGraph.addVertex(destinationID);
 		runtimeGraph.addEdge(nodeID, destinationID, new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));
@@ -557,8 +484,7 @@ public class Configuration {
 			runtimeGraph.addVertex(count);
 			runtimeGraph.addVertex(count + 1);
 			runtimeGraph.addEdge(count, count + 1, new ActionEdge(nextAction, new Queue()));
-			System.out.println(count + nextAction + count+1);
-
+			
 			remainingBehaviour = remainingBehaviour.substring(
 					remainingBehaviour.indexOf(Utils.PREFIX_ACTION) + Utils.PREFIX_ACTION.length(),
 					remainingBehaviour.length());
@@ -566,7 +492,6 @@ public class Configuration {
 				hasAction = false;
 				runtimeGraph.addEdge(count + 1, 0, new ActionEdge(
 						(e.getIdentification().getName() + "." + remainingBehaviour).trim(), new Queue())); // last
-				System.out.println(count+1 + (e.getIdentification().getName() + "." + remainingBehaviour).trim() + 0);
 			} else {
 				count++;
 				nextAction = remainingBehaviour.substring(0, remainingBehaviour.indexOf(Utils.PREFIX_ACTION)).trim();
