@@ -45,7 +45,7 @@ public class Utils {
 	public static final String PREFIX_ACTION = "->";
 	public static final String EXTERNAL_CHOICE_ACTION = "\\->|\\[]";
 	public static final String REGEX_ACTION = "\\->|\\[]";
-	public static final String CHOICE_ACTION = "->";
+	public static final String CHOICE_ACTION = "[]";
 	
 	public static final String [] SET_OF_ACTIONS = {"i_PreInvP","invP","i_PosInvP","i_PreInvR","invR","i_PosInvR","i_PreTerP","terP",
 			"i_PosTerP","i_PreTerR","terR","i_PosTerR","i_PreInvR1","i_PosTerR1","i_PreInvR2","i_PosTerR2","i_PreInvR3","i_PosTerR3",

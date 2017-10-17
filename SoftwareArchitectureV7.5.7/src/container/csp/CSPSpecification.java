@@ -206,6 +206,7 @@ public class CSPSpecification {
 
 		// --- process expression
 		HashMap<String, String> newBehaviours = new HashMap<String, String>();
+		ArrayList<String> lastActions = new ArrayList<String>();
 		
 		for (String process : processes.keySet()) {
 			Element tempElement = processes.get(process);
@@ -213,8 +214,15 @@ public class CSPSpecification {
 			//String[] actions = behaviour.split(Utils.PREFIX_ACTION);
 			
 			if(behaviour.contains(Utils.CHOICE_ACTION)) {
-				ArrayList sub = new ArrayList<>(
-						Arrays.asList(behaviour.split(Utils.CHOICE_ACTION)));
+				ArrayList<String> choices = new ArrayList<>(
+						Arrays.asList(behaviour.split("\\[]")));
+				
+				Iterator<String> choice = choices.iterator();
+				while(choice.hasNext()) {
+					ArrayList<String> actions = new ArrayList<>(
+							Arrays.asList(choice.next().split(Utils.PREFIX_ACTION)));
+					lastActions.add((String) actions.get(actions.size()-1));
+				}
 				
 			}
 			
@@ -240,31 +248,28 @@ public class CSPSpecification {
 			}
 			newBehaviours.putIfAbsent(process, behaviour);
 		}
+				
 		
-		/*for(String p : processes.keySet()) {
-			Element tempElement = processes.get(p);
-			String behaviour = tempElement.getSemantics().getRuntimeBehaviour().getActions();
-			
-			if(behaviour.contains(Utils.CHOICE_ACTION)) {
-				
-				
-				for(String s: sub.) {
-					
-				}
-				
-				for (String process : newBehaviours.keySet()) {
-					this.processesExp = this.processesExp + process + " = " + newBehaviours.get(process) + " -> " + process;
-					this.processesExp = this.processesExp + "\n";
-				}
-			} else {
-				
-			}
-		}
-*/
 		
 		for (String process : newBehaviours.keySet()) {
-			this.processesExp = this.processesExp + process + " = " + newBehaviours.get(process) + " -> " + process;
-			this.processesExp = this.processesExp + "\n";
+			
+			if(newBehaviours.get(process).contains(Utils.CHOICE_ACTION)) {
+				ArrayList<String> choices = new ArrayList<>(
+						Arrays.asList(newBehaviours.get(process).split("\\[]")));
+				this.processesExp = this.processesExp + process + " = ";
+				
+				for(String choice: choices) {
+					this.processesExp = this.processesExp + choice + "(" + " -> "; 
+				}
+				
+				this.processesExp = this.processesExp + ")" + "\n";
+				
+				System.out.println(this.processesExp);
+				
+			} else {
+				this.processesExp = this.processesExp + process + " = " + newBehaviours.get(process) + " -> " + process;
+				this.processesExp = this.processesExp + "\n";
+			}
 		}
 
 		// composite Exp

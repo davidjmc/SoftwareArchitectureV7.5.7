@@ -216,7 +216,6 @@ public class Configuration {
 		Machine machine;
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		String remainingBehaviour = e.getSemantics().getStandardBehaviour().getActions();
-		System.out.println("dasda: " + remainingBehaviour);
 		
 		Session session = new Session();
 		session.loadFile(Utils.CSP_DIR + "/" + "conf.csp");
