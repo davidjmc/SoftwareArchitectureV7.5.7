@@ -259,7 +259,11 @@ public class CSPSpecification {
 				this.processesExp = this.processesExp + process + " = ";
 				
 				for(String choice: choices) {
-					this.processesExp = this.processesExp + choice + "(" + " -> "; 
+					if(choice.contains(Utils.PREFIX_ACTION)) {
+						this.processesExp = this.processesExp + 
+								choice.substring(0, choice.lastIndexOf("->")) + 
+								" -> " + "(" + choice.substring(choice.in, )" -> ";
+					} 
 				}
 				
 				this.processesExp = this.processesExp + ")" + "\n";

@@ -18,6 +18,6 @@ public abstract class CClient extends Component {
 		this.constraints = new Constraints();
 		this.runtimeInfo = new RuntimeInfo();
 		this.interfaces = Arrays.asList(new RequiredInterface(Utils.INTERFACE_TWO_WAY));
-		this.semantics = new Semantics("i_PreInvR -> invR.e1 -> i_PosInvR -> terR.e1 -> i_PosTerR");
+		this.semantics = new Semantics("i_PreInvR -> invR.e1 -> i_PosInvR -> terR.e1 -> i_PosTerR [] i_PosTerR2");
 	}
 }
