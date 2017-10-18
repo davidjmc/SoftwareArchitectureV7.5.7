@@ -6,7 +6,7 @@ channel invP,invR,terP,terR : PROCNAMES
 
 SERVER1 = i_PreInvP->invP.server1->i_PosInvP->i_PreTerP->terP.server1->i_PosTerP -> SERVER1
 T0 = invP.client->i_PosInvP->i_PreInvR->invR.server1->terR.server1->i_PosTerR->i_PreTerP->terP.client -> T0
-CLIENT = i_PreInvR->invR.client->i_PosInvR->terR.client -> ( -> )
+CLIENT = i_PreInvR->invR.client->i_PosInvR->terR.client->(i_PosTerR -> CLIENT[]i_PosTerR2 -> CLIENT)
 
 
 P1 = (CLIENT|||SERVER1) 

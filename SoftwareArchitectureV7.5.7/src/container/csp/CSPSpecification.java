@@ -258,18 +258,23 @@ public class CSPSpecification {
 						Arrays.asList(newBehaviours.get(process).split("\\[]")));
 				this.processesExp = this.processesExp + process + " = ";
 				
+				int i = 0;
 				for(String choice: choices) {
+					i = i+1;
 					if(choice.contains(Utils.PREFIX_ACTION)) {
 						this.processesExp = this.processesExp + 
 								choice.substring(0, choice.lastIndexOf("->")) + 
-								" -> " + "(" + choice.substring(choice.in, )" -> ";
-					} 
+								"->" + "(" + choice.substring(choice.lastIndexOf("->")+2) + " -> " + process;
+					} else {
+						this.processesExp = this.processesExp + choice + " -> " + process;
+					}
+					
+					if(choices.size() != i) {
+						this.processesExp = this.processesExp + Utils.CHOICE_ACTION;
+					}
 				}
 				
 				this.processesExp = this.processesExp + ")" + "\n";
-				
-				System.out.println(this.processesExp);
-				
 			} else {
 				this.processesExp = this.processesExp + process + " = " + newBehaviours.get(process) + " -> " + process;
 				this.processesExp = this.processesExp + "\n";
