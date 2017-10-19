@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 import adaptation.AdaptationManager;
+import container.csp.BehaviourSpecification;
 import container.csp.CSPSpecification;
 import framework.configuration.Configuration;
 import utils.Utils;
@@ -68,7 +69,10 @@ public class ExecutionEnvironment {
 		this.configureParameters();		
 		
 		CSPSpecification csp = new CSPSpecification(this);
-		//csp.cr();
+		
+		//BehaviourSpecification bs = new BehaviourSpecification(this);
+		//bs.create();
+	
 		
 		// configure execution environment
 		executionManager.configure();

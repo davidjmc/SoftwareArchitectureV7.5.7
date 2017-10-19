@@ -88,9 +88,7 @@ public class ExecutionManager {
 				
 				ArrayList ch = new ArrayList<>(
 						Arrays.asList(behaviour.split(Utils.PREFIX_ACTION)));
-				
-				
-				
+						
 			}
 
 			/*writer.println(this.dataTypeExp);
