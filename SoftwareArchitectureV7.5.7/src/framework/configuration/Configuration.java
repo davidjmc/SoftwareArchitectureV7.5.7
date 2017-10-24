@@ -432,10 +432,6 @@ public class Configuration {
 		
 		Event event = session.uncompileEvent(transition.event());
 		Node destination = transition.destination();
-		
-		if(!nodes.contains(node)) {
-			nodes.add(node);
-		}
 				
 		nodeID = nodeID + 1;
 		destinationID = nodeID + 1;
@@ -448,20 +444,26 @@ public class Configuration {
 		if (destination.equals(machine.rootNode())) {
 			destinationID = 0;
 		}
-
-		runtimeGraph.addVertex(nodeID);
-		runtimeGraph.addVertex(destinationID);
-		runtimeGraph.addEdge(nodeID, destinationID, new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));
 		
+		System.out.println(node + " -> " + event + " -> " + destination);
+
 		TransitionList childList = machine.transitions(destination);
 
 		if (childList.isEmpty()) {
 			recurse = false;
 		}
+		
+		if(!nodes.contains(node)) {
+			nodes.add(node);
+		}
 
 		if (nodes.contains(destination)) {
 			recurse = false;
 		}
+			
+		runtimeGraph.addVertex(nodeID);
+		runtimeGraph.addVertex(destinationID);
+		runtimeGraph.addEdge(nodeID, destinationID, new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));
 		
 		if (recurse) {
 			for (Transition child : machine.transitions(destination)) {

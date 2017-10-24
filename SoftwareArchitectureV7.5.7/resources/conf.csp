@@ -14,8 +14,8 @@ P1 = (CLIENT|||SERVER1)
 (T0[[invP<-invR,invR<-invP,terP<-terR,terR<-terP]])
 
 
-assert SERVER1 :[deadlock free]
-assert T0 :[deadlock free]
+--assert SERVER1 :[deadlock free]
+--assert T0 :[deadlock free]
 assert CLIENT :[deadlock free]
 
 
