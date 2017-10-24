@@ -215,7 +215,7 @@ public class Configuration {
 		String[] expressions = null;
 		Machine machine;
 		ArrayList<Node> nodes = new ArrayList<Node>();
-		String remainingBehaviour = e.getSemantics().getStandardBehaviour().getActions();
+		//String remainingBehaviour = e.getSemantics().getStandardBehaviour().getActions();
 		
 		Session session = new Session();
 		session.loadFile(Utils.CSP_DIR + "/" + "conf.csp");
