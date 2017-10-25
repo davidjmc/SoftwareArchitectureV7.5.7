@@ -102,11 +102,12 @@ public class ExecutionUnit implements Runnable {
 				this.state.getAndSet(2);
 				break;
 			case 2: // processing
+				
 				nextEdges = graph.outgoingEdgesOf(nextVertex);
 				
 				System.out.println("size: " + nextEdges.size());
 				for(ActionEdge a: nextEdges) {
-					System.out.println(a.getAction());
+					System.out.println("a: " + a.getAction());
 				}
 				
 				nextEdge = nextEdges.iterator().next(); // TODO in complete CSP

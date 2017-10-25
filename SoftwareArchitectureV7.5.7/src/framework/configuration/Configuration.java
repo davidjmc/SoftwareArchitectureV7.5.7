@@ -213,12 +213,6 @@ public class Configuration {
 		String[] expressions = null;
 		Machine machine;
 		ArrayList<Node> nodes = new ArrayList<Node>();
-<<<<<<< HEAD
-		//String remainingBehaviour = e.getSemantics().getStandardBehaviour().getActions();
-=======
-		String remainingBehaviour = e.getSemantics().getStandardBehaviour().getActions();
-		System.out.println(remainingBehaviour);
->>>>>>> 7e58599b5417705f419175638362aca0c265c071
 		
 		Session session = new Session();
 		session.loadFile(Utils.CSP_DIR + "/" + "conf.csp");
@@ -238,8 +232,8 @@ public class Configuration {
 						describeTransitions(e, runtimeGraph, machine, session, node, transition, nodes, nodegraphs, actions, true);
 					}
 				}
+				//runtimeGraph = createGraph(e, actions);
 			}
-			runtimeGraph = createGraph(e, actions);
 		}
 		
 		/*if(remainingBehaviour.contains("[]")) {
@@ -454,7 +448,7 @@ public class Configuration {
 		Event event = session.uncompileEvent(transition.event());
 		Node destination = transition.destination();
 		
-		int current = destinationID;
+		//int current = destinationID;
 		nodeID = nodeID + 1;
 		destinationID = nodeID + 1;
 
@@ -467,7 +461,7 @@ public class Configuration {
 			destinationID = 0;
 		}
 		
-		System.out.println(node + " -> " + event + " -> " + destination);
+		//System.out.println(node + " -> " + event + " -> " + destination);
 
 		TransitionList childList = machine.transitions(destination);
 
@@ -475,29 +469,26 @@ public class Configuration {
 			recurse = false;
 		}
 		
-	/*	if(!nodes.contains(node)) {
+		if(!nodes.contains(node)) {
 			nodes.add(node);
-		}*/
+		}
 
 		if (nodes.contains(destination)) {
 			recurse = false;
 		}
 		
-		System.out.println("nodeID: " + nodeID);
 		NodeGraph src = new NodeGraph(nodeID, node);
 		if (!nodes.contains(node)) {
 			nodes.add(node);
 			nodegraphs.add(src);
 		}
 
-		System.out.println("dest: " + destinationID);
 		NodeGraph dest = new NodeGraph(destinationID, destination);
 		if (!nodes.contains(destination)) {
 			nodes.add(destination);
 			nodegraphs.add(dest);
 		}
 
-		System.out.println("Current: " + current);
 		for (NodeGraph nodegraph : nodegraphs) {
 			if (nodegraph.getNode().equals(node)) {
 				src = nodegraph;
@@ -508,14 +499,15 @@ public class Configuration {
 			}
 		}
 		
-		container.graph.Action action = new container.graph.Action(src, event, dest);
+/*		container.graph.Action action = new container.graph.Action(src, event, dest);
 		actions.add(action);
-			
-		//runtimeGraph.addVertex(nodeID);
-		//runtimeGraph.addVertex(destinationID);
-		//runtimeGraph.addEdge(nodeID, destinationID, new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));
+*/		
+		//System.out.println(nodeID + " -> " + e.getIdentification().getName() + "." + event + " -> " + destinationID);
+		//System.out.println(src.getId() + " -> " + e.getIdentification().getName() + "." + event + " -> " + dest.getId());
 		
-		System.out.println("cascacsa : " + childList.size());
+		runtimeGraph.addVertex(src.getId());
+		runtimeGraph.addVertex(dest.getId());
+		runtimeGraph.addEdge(src.getId(), dest.getId(), new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));
 		
 		if (recurse) {
 			for (Transition child : machine.transitions(destination)) {
