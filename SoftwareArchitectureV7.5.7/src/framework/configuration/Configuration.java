@@ -1,10 +1,6 @@
 package framework.configuration;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -13,6 +9,8 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 
 import container.ExecutionEnvironment;
 import container.Queue;
+import container.graph.Action;
+import container.graph.NodeGraph;
 import framework.basic.Element;
 import framework.basic.RuntimeInfo;
 import framework.component.Component;
@@ -34,9 +32,8 @@ public class Configuration {
 	private boolean isAdaptive;
 	static int nodeID = 0;
 	static int destinationID = 0;
-	
-	static int src = 0;
-	static int dest = 1;
+	//ArrayList<NodeGraph> nodegraphs = new ArrayList<>();
+	//static ArrayList<container.graph.Action> actions = new ArrayList<>();
 
 	public Configuration(String n, boolean isAdaptive) {
 		this.name = n;
@@ -207,7 +204,8 @@ public class Configuration {
 		DirectedGraph<Integer, ActionEdge> runtimeGraph = new DefaultDirectedGraph<>(ActionEdge.class);
 		int count = 0;
 		boolean hasAction = true;
-		ArrayList<String> actions;
+		ArrayList<Action> actions = new ArrayList<>();
+		ArrayList<NodeGraph> nodegraphs = new ArrayList<>();
 		ArrayList<String> choices;
 		String nextAction;
 		String action;
@@ -221,6 +219,8 @@ public class Configuration {
 		session.loadFile(Utils.CSP_DIR + "/" + "conf.csp");
 		
 		for(Assertion assertion: session.assertions()) {
+			nodeID = 0;
+			destinationID = 0;
 			assertion.execute(null);
 			
 			if(assertion.toString().contains(e.getIdentification().getName().toUpperCase())) {
@@ -230,11 +230,11 @@ public class Configuration {
 					Node node = machine.rootNode();
 					
 					for(Transition transition: machine.transitions(node)) {
-						describeTransitions(e, runtimeGraph, machine, session, node, transition, nodes, true);
+						describeTransitions(e, runtimeGraph, machine, session, node, transition, nodes, nodegraphs, actions, true);
 					}
 				}
 			}
-			
+			runtimeGraph = createGraph(e, actions);
 		}
 		
 		/*if(remainingBehaviour.contains("[]")) {
@@ -398,8 +398,8 @@ public class Configuration {
 
 		// adjusts action's queues to keep action, pre*action and pos*action the
 		// same
-		Iterator<ActionEdge> it = runtimeGraph.edgeSet().iterator();
 		
+		Iterator<ActionEdge> it = runtimeGraph.edgeSet().iterator();
 		
 		String previousAction = "XXXXX";
 		String currentAction  = "XXXXX";
@@ -427,12 +427,29 @@ public class Configuration {
 		return runtimeGraph;
 	}
 
+	private DirectedGraph<Integer, ActionEdge> createGraph(Element e, ArrayList<Action> actions) {
+		DirectedGraph<Integer, ActionEdge> runtimeGraph = new DefaultDirectedGraph<>(ActionEdge.class);
+		
+		for(Action action: actions) {
+			
+			runtimeGraph.addVertex(action.getFrom().getId());
+			runtimeGraph.addVertex(action.getTo().getId());
+			runtimeGraph.addEdge(action.getFrom().getId(), action.getTo().getId(), 
+					new ActionEdge(e.getIdentification().getName() + "." + action.getEvent().toString(), new Queue()));
+			
+		}
+
+		return runtimeGraph;
+	}
+
 	private void describeTransitions(Element e, DirectedGraph<Integer, ActionEdge> runtimeGraph, Machine machine, Session session, Node node, Transition transition,
-			ArrayList<Node> nodes, boolean recurse) {
+			ArrayList<Node> nodes, ArrayList<NodeGraph> nodegraphs, ArrayList<Action> actions, boolean recurse) {
+		
 		
 		Event event = session.uncompileEvent(transition.event());
 		Node destination = transition.destination();
-				
+		
+		int current = destinationID;
 		nodeID = nodeID + 1;
 		destinationID = nodeID + 1;
 
@@ -453,21 +470,51 @@ public class Configuration {
 			recurse = false;
 		}
 		
-		if(!nodes.contains(node)) {
+	/*	if(!nodes.contains(node)) {
 			nodes.add(node);
-		}
+		}*/
 
 		if (nodes.contains(destination)) {
 			recurse = false;
 		}
+		
+		System.out.println("nodeID: " + nodeID);
+		NodeGraph src = new NodeGraph(nodeID, node);
+		if (!nodes.contains(node)) {
+			nodes.add(node);
+			nodegraphs.add(src);
+		}
+
+		System.out.println("dest: " + destinationID);
+		NodeGraph dest = new NodeGraph(destinationID, destination);
+		if (!nodes.contains(destination)) {
+			nodes.add(destination);
+			nodegraphs.add(dest);
+		}
+
+		System.out.println("Current: " + current);
+		for (NodeGraph nodegraph : nodegraphs) {
+			if (nodegraph.getNode().equals(node)) {
+				src = nodegraph;
+			}
+
+			if (nodegraph.getNode().equals(destination)) {
+				dest = nodegraph;
+			}
+		}
+		
+		container.graph.Action action = new container.graph.Action(src, event, dest);
+		actions.add(action);
 			
-		runtimeGraph.addVertex(nodeID);
-		runtimeGraph.addVertex(destinationID);
-		runtimeGraph.addEdge(nodeID, destinationID, new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));
+		//runtimeGraph.addVertex(nodeID);
+		//runtimeGraph.addVertex(destinationID);
+		//runtimeGraph.addEdge(nodeID, destinationID, new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));
+		
+		System.out.println("cascacsa : " + childList.size());
 		
 		if (recurse) {
 			for (Transition child : machine.transitions(destination)) {
-				describeTransitions(e, runtimeGraph, machine, session, destination, child, nodes, true);
+				describeTransitions(e, runtimeGraph, machine, session, destination, child, nodes, nodegraphs, actions, true);
 			}
 		}
 	}
