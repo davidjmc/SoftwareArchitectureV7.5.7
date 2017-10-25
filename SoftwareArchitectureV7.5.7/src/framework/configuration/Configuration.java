@@ -502,12 +502,12 @@ public class Configuration {
 /*		container.graph.Action action = new container.graph.Action(src, event, dest);
 		actions.add(action);
 */		
-		//System.out.println(nodeID + " -> " + e.getIdentification().getName() + "." + event + " -> " + destinationID);
-		//System.out.println(src.getId() + " -> " + e.getIdentification().getName() + "." + event + " -> " + dest.getId());
+		System.out.println(nodeID + " -> " + e.getIdentification().getName() + "." + event + " -> " + destinationID);
+		System.out.println(src.getId() + " -> " + e.getIdentification().getName() + "." + event + " -> " + dest.getId());
 		
-		runtimeGraph.addVertex(src.getId());
-		runtimeGraph.addVertex(dest.getId());
-		runtimeGraph.addEdge(src.getId(), dest.getId(), new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));
+		runtimeGraph.addVertex(nodeID);
+		runtimeGraph.addVertex(destinationID);
+		runtimeGraph.addEdge(nodeID, destinationID, new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));
 		
 		if (recurse) {
 			for (Transition child : machine.transitions(destination)) {
