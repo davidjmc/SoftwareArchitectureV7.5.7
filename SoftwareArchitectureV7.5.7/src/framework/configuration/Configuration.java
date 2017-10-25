@@ -213,7 +213,12 @@ public class Configuration {
 		String[] expressions = null;
 		Machine machine;
 		ArrayList<Node> nodes = new ArrayList<Node>();
+<<<<<<< HEAD
 		//String remainingBehaviour = e.getSemantics().getStandardBehaviour().getActions();
+=======
+		String remainingBehaviour = e.getSemantics().getStandardBehaviour().getActions();
+		System.out.println(remainingBehaviour);
+>>>>>>> 7e58599b5417705f419175638362aca0c265c071
 		
 		Session session = new Session();
 		session.loadFile(Utils.CSP_DIR + "/" + "conf.csp");
