@@ -496,13 +496,18 @@ public class Configuration {
 
 			if (nodegraph.getNode().equals(destination)) {
 				dest = nodegraph;
+				
+				if(dest.getId() == 0) {
+					flag = true;
+				}
 			}
 		}
 		
+		if()
 /*		container.graph.Action action = new container.graph.Action(src, event, dest);
 		actions.add(action);
 */		
-		System.out.println(nodeID + " -> " + e.getIdentification().getName() + "." + event + " -> " + destinationID);
+		//System.out.println(nodeID + " -> " + e.getIdentification().getName() + "." + event + " -> " + destinationID);
 		System.out.println(src.getId() + " -> " + e.getIdentification().getName() + "." + event + " -> " + dest.getId());
 		
 		runtimeGraph.addVertex(nodeID);
