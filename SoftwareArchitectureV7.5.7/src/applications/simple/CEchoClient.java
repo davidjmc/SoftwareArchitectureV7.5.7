@@ -33,4 +33,12 @@ public class CEchoClient extends CClient {
 		System.out.println(this.getClass() + " [" + this.getIdentification().getName() + "]  : " + reply.getR());
 		here(Thread.currentThread().getStackTrace()[1].getMethodName() + " ");
 	}
+	
+	public void i_PosTerR2(Queue local, ExecutionUnit unit) {
+		Reply reply = new Reply();
+
+		reply = (Reply) ((SAMessage) take(local, unit)).getContent();	
+		System.out.println(this.getClass() + " [" + this.getIdentification().getName() + "]  : " + reply.getR() + "ALGO MAIS!");
+		here(Thread.currentThread().getStackTrace()[1].getMethodName() + " ");
+	}
 }

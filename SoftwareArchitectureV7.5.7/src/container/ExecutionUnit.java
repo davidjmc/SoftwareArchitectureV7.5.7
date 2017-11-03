@@ -2,6 +2,7 @@ package container;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
@@ -102,10 +103,8 @@ public class ExecutionUnit implements Runnable {
 				this.state.getAndSet(2);
 				break;
 			case 2: // processing
-				
-				nextEdges = graph.outgoingEdgesOf(nextVertex);
+				nextEdges = graph.outgoingEdgesOf(nextVertex);		
 				nextEdge = nextEdges.iterator().next(); // TODO in complete CSP
-				System.out.println(nextEdge + " " + nextVertex);
 				executeAction(nextEdge);
 				nextVertex = graph.getEdgeTarget(nextEdge);
 				break;

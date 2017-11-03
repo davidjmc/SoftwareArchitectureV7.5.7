@@ -1,8 +1,10 @@
 package framework.configuration;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Random;
 
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -10,6 +12,7 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 import container.ExecutionEnvironment;
 import container.Queue;
 import container.graph.Action;
+import container.graph.BehaviourGraph;
 import container.graph.NodeGraph;
 import framework.basic.Element;
 import framework.basic.RuntimeInfo;
@@ -66,13 +69,13 @@ public class Configuration {
 		Element from, to;
 		DirectedGraph<Integer, ActionEdge> fromBehaviourGraph = new DefaultDirectedGraph<>(ActionEdge.class);
 		DirectedGraph<Integer, ActionEdge> toBehaviourGraph = new DefaultDirectedGraph<>(ActionEdge.class);
-		
+				
 		// -------- create runtime graphs
 		for (StructureEdge edgeTemp : env.getConf().getStructure().edgeSet()) {
 			from = (Element) edgeTemp.getS();			
 			to = (Element) edgeTemp.getT();
-
-			fromBehaviourGraph = createRuntimeGraph(from);
+			
+			fromBehaviourGraph = createRuntimeGraph(from);		
 			from.getSemantics().setGraph(fromBehaviourGraph);
 			from.setRuntimeInfo(new RuntimeInfo(env));
 			toBehaviourGraph = createRuntimeGraph(to);
@@ -199,27 +202,21 @@ public class Configuration {
 		}
 		this.setStructure(tempStructure);
 	}
-
+	
 	public DirectedGraph<Integer, ActionEdge> createRuntimeGraph(Element e) {
 		DirectedGraph<Integer, ActionEdge> runtimeGraph = new DefaultDirectedGraph<>(ActionEdge.class);
-		int count = 0;
-		boolean hasAction = true;
+		nodeID = 0;
+		destinationID = 0;
+		
+		Machine machine;
 		ArrayList<Action> actions = new ArrayList<>();
 		ArrayList<NodeGraph> nodegraphs = new ArrayList<>();
-		ArrayList<String> choices;
-		String nextAction;
-		String action;
-		String act;
-		String[] expressions = null;
-		Machine machine;
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		
 		Session session = new Session();
 		session.loadFile(Utils.CSP_DIR + "/" + "conf.csp");
 		
-		for(Assertion assertion: session.assertions()) {
-			nodeID = 0;
-			destinationID = 0;
+		for(Assertion assertion: session.assertions()) {	
 			assertion.execute(null);
 			
 			if(assertion.toString().contains(e.getIdentification().getName().toUpperCase())) {
@@ -235,166 +232,7 @@ public class Configuration {
 				//runtimeGraph = createGraph(e, actions);
 			}
 		}
-		
-		/*if(remainingBehaviour.contains("[]")) {
-			int orig = 0;
-			int dest = 1;
-			int c = 1;
-			boolean t = true;
-			
-			actions = new ArrayList<>(
-					Arrays.asList(remainingBehaviour.split(Utils.PREFIX_ACTION)));
-			
-			while(t) {
 				
-				action = (e.getIdentification().getName() + "." + actions.get(orig)).trim();
-				
-				if(actions.get(dest).contains("[]")) {
-					ArrayList<String> acts = new ArrayList<>(Arrays.asList(actions.get(dest).split("\\[]")));
-					
-					for(int j=0; j<acts.size(); j++) {
-						//act = (e.getIdentification().getName() + "." + acts.get(j)).trim();
-						runtimeGraph.addVertex(orig);
-						runtimeGraph.addVertex(dest);
-						runtimeGraph.addEdge(orig, dest, new ActionEdge(action, new Queue()));
-						dest = dest + 1;
-					} 
-				} else {
-					runtimeGraph.addVertex(orig);
-					runtimeGraph.addVertex(dest);
-					runtimeGraph.addEdge(orig, dest, new ActionEdge(action, new Queue()));
-				}
-				
-				orig = orig + 1;
-				dest = dest + 1;
-				c = c + 1;
-				
-				if(c == actions.size()) {
-					dest = 0;
-					
-					action = (e.getIdentification().getName() + "." + actions.get(orig)).trim();
-					
-					if(action.contains("[]")) {
-						
-						ArrayList<String> acts = new ArrayList<>(Arrays.asList(actions.get(orig).split("\\[]")));
-						for(int j=0; j<acts.size(); j++) {
-							act = (e.getIdentification().getName() + "." + acts.get(j)).trim();
-							runtimeGraph.addVertex(orig);
-							runtimeGraph.addVertex(dest);
-							runtimeGraph.addEdge(orig, dest, new ActionEdge(act, new Queue()));
-							orig = orig + 1;
-						}
-						
-					}
-					t = false;
-				}
-			}
-			
-			for(int i=0; i<(actions.size()-1); i++) {
-				int src = i;
-				int des = i+1;
-				
-				if(actions.get(des).contains("[]")) {
-					ArrayList<String> acts = new ArrayList<>(Arrays.asList(actions.get(des).split("\\[]")));
-					
-					for(int j=0; j<acts.size(); j++) {
-						act = (e.getIdentification().getName() + "." + acts.get(j)).trim();
-						runtimeGraph.addVertex(src);
-						runtimeGraph.addVertex(des);
-						runtimeGraph.addEdge(src, des, new ActionEdge(act, new Queue()));
-					}
-				} else {
-					action = (e.getIdentification().getName() + "." + actions.get(src)).trim();
-					runtimeGraph.addVertex(src);
-					runtimeGraph.addVertex(des);
-					runtimeGraph.addEdge(src, des, new ActionEdge(action, new Queue()));
-				}
-				
-				if(i+1 == (actions.size()-1)) {
-					src = i+1;
-					des = 0;
-					
-					if(actions.get(src).contains("[]")) {
-						ArrayList<String> acts = new ArrayList<>(Arrays.asList(actions.get(src).split("\\[]")));
-						for(int j=0; j<acts.size(); j++) {
-							act = (e.getIdentification().getName() + "." + acts.get(j)).trim();
-							runtimeGraph.addVertex(src);
-							runtimeGraph.addVertex(des);
-							runtimeGraph.addEdge(src, des, new ActionEdge(act, new Queue()));
-						}
-					} else {
-						runtimeGraph.addEdge(src, des, new ActionEdge((e.getIdentification().getName() + 
-								"." + actions.get(src)).trim(), new Queue()));
-					}
-				}
-			}	
-		} else {
-			actions = new ArrayList<>(
-					Arrays.asList(remainingBehaviour.split(Utils.PREFIX_ACTION)));
-			
-			for(int i=0; i<(actions.size()-1); i++) {
-				int src = i;
-				int des = i+1;
-				action = (e.getIdentification().getName() + "." + actions.get(src)).trim();
-				
-				runtimeGraph.addVertex(src);
-				runtimeGraph.addVertex(des);
-				runtimeGraph.addEdge(src, des, new ActionEdge(action, new Queue()));			
-				
-				if(i+1 == (actions.size()-1)) {
-					src = i+1;
-					des = 0;
-					runtimeGraph.addEdge(src, des, new ActionEdge((e.getIdentification().getName() + "." + actions.get(src)).trim(), new Queue()));
-				}
-			}
-		}*/
-		
-		/*String[] actions = remainingBehaviour.split(Utils.PREFIX_ACTION);
-		System.out.println("Quant actions: " + actions.length);
-		
-		
-		int quant = actions.length - 1;
-		
-		for(int i=0; i<quant; i++) {
-			int src = i;
-			int des = i+1;
-			action = (e.getIdentification().getName() + "." + actions[src]).trim();
-			
-			runtimeGraph.addVertex(src);
-			runtimeGraph.addVertex(des);
-			runtimeGraph.addEdge(src, des, new ActionEdge(action, new Queue()));
-			System.out.println("src: " + src + " Action: " + action + " des: " + des);
-			
-			if(i+1 == quant) {
-				src = i+1;
-				des = 0;
-				
-				runtimeGraph.addEdge(src, des, new ActionEdge((e.getIdentification().getName() + "." + actions[src]).trim(), new Queue()));
-				System.out.println("src: " + src + " Action: " + action + " des: " + des);
-			} 
-		}*/
-			
-/*	while (hasAction) {
-			nextAction = (e.getIdentification().getName() + "."
-					+ remainingBehaviour.substring(0, remainingBehaviour.indexOf(Utils.PREFIX_ACTION))).trim();
-			runtimeGraph.addVertex(count);
-			runtimeGraph.addVertex(count + 1);
-			runtimeGraph.addEdge(count, count + 1, new ActionEdge(nextAction, new Queue()));
-			
-			remainingBehaviour = remainingBehaviour.substring(
-					remainingBehaviour.indexOf(Utils.PREFIX_ACTION) + Utils.PREFIX_ACTION.length(),
-					remainingBehaviour.length());
-			if (remainingBehaviour.indexOf(Utils.PREFIX_ACTION) == -1) {
-				hasAction = false;
-				runtimeGraph.addEdge(count + 1, 0, new ActionEdge(
-						(e.getIdentification().getName() + "." + remainingBehaviour).trim(), new Queue())); // last
-			} else {
-				count++;
-				nextAction = remainingBehaviour.substring(0, remainingBehaviour.indexOf(Utils.PREFIX_ACTION)).trim();
-			}
-
-		}*/
-
 		// adjusts action's queues to keep action, pre*action and pos*action the
 		// same
 		
@@ -440,15 +278,13 @@ public class Configuration {
 
 		return runtimeGraph;
 	}
-
+	
 	private void describeTransitions(Element e, DirectedGraph<Integer, ActionEdge> runtimeGraph, Machine machine, Session session, Node node, Transition transition,
 			ArrayList<Node> nodes, ArrayList<NodeGraph> nodegraphs, ArrayList<Action> actions, boolean recurse) {
-		
 		
 		Event event = session.uncompileEvent(transition.event());
 		Node destination = transition.destination();
 		
-		//int current = destinationID;
 		nodeID = nodeID + 1;
 		destinationID = nodeID + 1;
 
@@ -462,9 +298,8 @@ public class Configuration {
 		}
 		
 		//System.out.println(node + " -> " + event + " -> " + destination);
-
+		
 		TransitionList childList = machine.transitions(destination);
-
 		if (childList.isEmpty()) {
 			recurse = false;
 		}
@@ -504,14 +339,27 @@ public class Configuration {
 		actions.add(action);
 */		
 		//System.out.println(nodeID + " -> " + e.getIdentification().getName() + "." + event + " -> " + destinationID);
+		
 		System.out.println(src.getId() + " -> " + e.getIdentification().getName() + "." + event + " -> " + dest.getId());
 		
-		runtimeGraph.addVertex(nodeID);
+		/*runtimeGraph.addVertex(nodeID);
 		runtimeGraph.addVertex(destinationID);
-		runtimeGraph.addEdge(nodeID, destinationID, new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));
+		runtimeGraph.addEdge(nodeID, destinationID, new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));*/
+		
+		runtimeGraph.addVertex(src.getId());
+		runtimeGraph.addVertex(dest.getId());
+		runtimeGraph.addEdge(src.getId(), dest.getId(), new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));
+		
+		ArrayList<String> events = new ArrayList<>();
+		events.add("i_PosTerR");
+		//events.add("i_PosTerR2");
+		Collections.shuffle(events);
+		//System.out.println("Events: " + events.get(0));
 		
 		if (recurse) {
+			System.out.println("Tamanho: " + machine.transitions(destination).size());
 			for (Transition child : machine.transitions(destination)) {
+				if(session.uncompileEvent(child.event()).toString().equals("i_PosTerR2")) {continue;}
 				describeTransitions(e, runtimeGraph, machine, session, destination, child, nodes, nodegraphs, actions, true);
 			}
 		}
