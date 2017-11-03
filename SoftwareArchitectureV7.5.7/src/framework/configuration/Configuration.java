@@ -497,13 +497,9 @@ public class Configuration {
 			if (nodegraph.getNode().equals(destination)) {
 				dest = nodegraph;
 				
-				if(dest.getId() == 0) {
-					flag = true;
-				}
 			}
 		}
 		
-		if()
 /*		container.graph.Action action = new container.graph.Action(src, event, dest);
 		actions.add(action);
 */		
