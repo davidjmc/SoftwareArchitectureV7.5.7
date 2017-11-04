@@ -229,7 +229,6 @@ public class Configuration {
 						describeTransitions(e, runtimeGraph, machine, session, node, transition, nodes, nodegraphs, actions, true);
 					}
 				}
-				//runtimeGraph = createGraph(e, actions);
 			}
 		}
 				
@@ -350,16 +349,12 @@ public class Configuration {
 		runtimeGraph.addVertex(dest.getId());
 		runtimeGraph.addEdge(src.getId(), dest.getId(), new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));
 		
-		ArrayList<String> events = new ArrayList<>();
-		events.add("i_PosTerR");
-		//events.add("i_PosTerR2");
-		Collections.shuffle(events);
-		//System.out.println("Events: " + events.get(0));
-		
 		if (recurse) {
-			System.out.println("Tamanho: " + machine.transitions(destination).size());
 			for (Transition child : machine.transitions(destination)) {
-				if(session.uncompileEvent(child.event()).toString().equals("i_PosTerR2")) {continue;}
+				
+				if(machine.transitions(destination).size() > 1) {
+					if(!session.uncompileEvent(child.event()).toString().equals("i_PosTerR2")) {continue;}
+				}
 				describeTransitions(e, runtimeGraph, machine, session, destination, child, nodes, nodegraphs, actions, true);
 			}
 		}
@@ -416,12 +411,6 @@ public class Configuration {
 				}
 			}
 		}
-		// it = runtimeGraph.edgeSet().iterator();
-		// while (it.hasNext()) {
-		// ActionEdge edge = it.next();
-		// System.out.println(this.getClass() + ": " + edge.getAction() + " " +
-		// edge.getQueue());
-		// }
 		return runtimeGraph;
 	}
 
