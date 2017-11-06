@@ -1,10 +1,9 @@
 package framework.configuration;
 
 import java.util.ArrayList;
-import java.util.Collections;
+
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Random;
 
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -12,7 +11,6 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 import container.ExecutionEnvironment;
 import container.Queue;
 import container.graph.Action;
-import container.graph.BehaviourGraph;
 import container.graph.NodeGraph;
 import framework.basic.Element;
 import framework.basic.RuntimeInfo;
@@ -35,9 +33,7 @@ public class Configuration {
 	private boolean isAdaptive;
 	static int nodeID = 0;
 	static int destinationID = 0;
-	//ArrayList<NodeGraph> nodegraphs = new ArrayList<>();
-	//static ArrayList<container.graph.Action> actions = new ArrayList<>();
-
+	
 	public Configuration(String n, boolean isAdaptive) {
 		this.name = n;
 		this.setStructure(new DefaultDirectedGraph<>(StructureEdge.class));
@@ -59,7 +55,6 @@ public class Configuration {
 	}
 
 	public void connectStructure(Element from, Element to) {
-
 		this.structure.addVertex(from);
 		this.structure.addVertex(to);
 		this.structure.addEdge(from, to);
@@ -262,21 +257,6 @@ public class Configuration {
 		}
 		return runtimeGraph;
 	}
-
-	private DirectedGraph<Integer, ActionEdge> createGraph(Element e, ArrayList<Action> actions) {
-		DirectedGraph<Integer, ActionEdge> runtimeGraph = new DefaultDirectedGraph<>(ActionEdge.class);
-		
-		for(Action action: actions) {
-			
-			runtimeGraph.addVertex(action.getFrom().getId());
-			runtimeGraph.addVertex(action.getTo().getId());
-			runtimeGraph.addEdge(action.getFrom().getId(), action.getTo().getId(), 
-					new ActionEdge(e.getIdentification().getName() + "." + action.getEvent().toString(), new Queue()));
-			
-		}
-
-		return runtimeGraph;
-	}
 	
 	private void describeTransitions(Element e, DirectedGraph<Integer, ActionEdge> runtimeGraph, Machine machine, Session session, Node node, Transition transition,
 			ArrayList<Node> nodes, ArrayList<NodeGraph> nodegraphs, ArrayList<Action> actions, boolean recurse) {
@@ -334,9 +314,6 @@ public class Configuration {
 			}
 		}
 		
-/*		container.graph.Action action = new container.graph.Action(src, event, dest);
-		actions.add(action);
-*/		
 		//System.out.println(nodeID + " -> " + e.getIdentification().getName() + "." + event + " -> " + destinationID);
 		
 		System.out.println(src.getId() + " -> " + e.getIdentification().getName() + "." + event + " -> " + dest.getId());
