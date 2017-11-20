@@ -1,9 +1,10 @@
 package framework.configuration;
 
 import java.util.ArrayList;
-
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -316,7 +317,7 @@ public class Configuration {
 		
 		//System.out.println(nodeID + " -> " + e.getIdentification().getName() + "." + event + " -> " + destinationID);
 		
-		System.out.println(src.getId() + " -> " + e.getIdentification().getName() + "." + event + " -> " + dest.getId());
+		//System.out.println(src.getId() + " -> " + e.getIdentification().getName() + "." + event + " -> " + dest.getId());
 		
 		/*runtimeGraph.addVertex(nodeID);
 		runtimeGraph.addVertex(destinationID);
@@ -330,11 +331,22 @@ public class Configuration {
 			for (Transition child : machine.transitions(destination)) {
 				
 				if(machine.transitions(destination).size() > 1) {
-					if(!session.uncompileEvent(child.event()).toString().equals("i_PosTerR2")) {continue;}
+					String action = reffle();
+					System.out.println("ACTIONNNNNNN: " + action);
+					if(!session.uncompileEvent(child.event()).toString().equals(action)) {continue;}
 				}
 				describeTransitions(e, runtimeGraph, machine, session, destination, child, nodes, nodegraphs, actions, true);
 			}
 		}
+	}
+
+	private String reffle() {
+		List<String> actions = new ArrayList<String>();
+		actions.add("i_PosTerR");
+		actions.add("i_PosTerR");
+		Collections.shuffle(actions);
+		
+		return actions.get((int) (Math.random()*actions.size()));
 	}
 
 	public DirectedGraph<Integer, ActionEdge> OLDcreateRuntimeGraph(Element e) {

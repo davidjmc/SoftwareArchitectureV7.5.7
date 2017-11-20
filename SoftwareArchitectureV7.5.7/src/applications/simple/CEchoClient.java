@@ -38,7 +38,7 @@ public class CEchoClient extends CClient {
 		Reply reply = new Reply();
 
 		reply = (Reply) ((SAMessage) take(local, unit)).getContent();	
-		System.out.println(this.getClass() + " [" + this.getIdentification().getName() + "]  : " + reply.getR() + " ALGO MAIS!!!");
+		System.out.println(this.getClass() + " [" + this.getIdentification().getName() + "]  : " + reply.getR() + " 2!");
 		here(Thread.currentThread().getStackTrace()[1].getMethodName() + " ");
 	}
 }
