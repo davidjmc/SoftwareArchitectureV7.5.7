@@ -1,13 +1,19 @@
 package framework.configuration;
 
+import java.io.File;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DirectedMultigraph;
+import org.kohsuke.graphviz.Edge;
+import org.kohsuke.graphviz.Graph;
 
 import container.ExecutionEnvironment;
 import container.Queue;
@@ -199,8 +205,16 @@ public class Configuration {
 		this.setStructure(tempStructure);
 	}
 	
+	public Graph createRuntime(Element e) {
+		Graph runtimeGraph = new Graph();
+		
+		return runtimeGraph;
+	}
+	
 	public DirectedGraph<Integer, ActionEdge> createRuntimeGraph(Element e) {
-		DirectedGraph<Integer, ActionEdge> runtimeGraph = new DefaultDirectedGraph<>(ActionEdge.class);
+		//DirectedGraph<Integer, ActionEdge> runtimeGraph = new DefaultDirectedGraph<>(ActionEdge.class);
+		DirectedGraph<Integer, ActionEdge> runtimeGraph = new DirectedMultigraph<>(ActionEdge.class);
+		
 		nodeID = 0;
 		destinationID = 0;
 		
@@ -224,11 +238,13 @@ public class Configuration {
 					for(Transition transition: machine.transitions(node)) {
 						describeTransitions(e, runtimeGraph, machine, session, node, transition, nodes, nodegraphs, actions, true);
 					}
+					
+					createGraph(machine, session, actions);
 				}
 			}
 		}
 				
-		// adjusts action's queues to keep action, pre*action and pos*action the
+		//adjusts action's queues to keep action, pre*action and pos*action the
 		// same
 		
 		Iterator<ActionEdge> it = runtimeGraph.edgeSet().iterator();
@@ -259,6 +275,31 @@ public class Configuration {
 		return runtimeGraph;
 	}
 	
+	private void createGraph(Machine machine, Session session, ArrayList<Action> actions) {
+		
+		Graph g = new Graph();
+		
+		g.id(session.machineName(machine).toString());
+
+		for (Action action : actions) {
+		
+			String event = action.getEvent().toString();
+
+			Edge e = new Edge(new org.kohsuke.graphviz.Node().id(String.valueOf(action.getFrom().getId())),
+					new org.kohsuke.graphviz.Node()
+							.id(String.valueOf(action.getTo().getId()) + " [ label=\"" + event + "\"];"));
+			g.edge(e);
+		}
+		
+		OutputStream out = null;
+		try {
+			out = new FileOutputStream(new File(Utils.CSP_DIR + "/" + session.machineName(machine).toString()));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		g.writeTo(out);
+	}
+
 	private void describeTransitions(Element e, DirectedGraph<Integer, ActionEdge> runtimeGraph, Machine machine, Session session, Node node, Transition transition,
 			ArrayList<Node> nodes, ArrayList<NodeGraph> nodegraphs, ArrayList<Action> actions, boolean recurse) {
 		
@@ -315,38 +356,19 @@ public class Configuration {
 			}
 		}
 		
-		//System.out.println(nodeID + " -> " + e.getIdentification().getName() + "." + event + " -> " + destinationID);
-		
+		actions.add(new Action(src, event, dest));
+
 		//System.out.println(src.getId() + " -> " + e.getIdentification().getName() + "." + event + " -> " + dest.getId());
-		
-		/*runtimeGraph.addVertex(nodeID);
-		runtimeGraph.addVertex(destinationID);
-		runtimeGraph.addEdge(nodeID, destinationID, new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));*/
 		
 		runtimeGraph.addVertex(src.getId());
 		runtimeGraph.addVertex(dest.getId());
 		runtimeGraph.addEdge(src.getId(), dest.getId(), new ActionEdge(e.getIdentification().getName() + "." + event, new Queue()));
-		
+			
 		if (recurse) {
 			for (Transition child : machine.transitions(destination)) {
-				
-				if(machine.transitions(destination).size() > 1) {
-					String action = reffle();
-					System.out.println("ACTIONNNNNNN: " + action);
-					if(!session.uncompileEvent(child.event()).toString().equals(action)) {continue;}
-				}
 				describeTransitions(e, runtimeGraph, machine, session, destination, child, nodes, nodegraphs, actions, true);
 			}
 		}
-	}
-
-	private String reffle() {
-		List<String> actions = new ArrayList<String>();
-		actions.add("i_PosTerR");
-		actions.add("i_PosTerR");
-		Collections.shuffle(actions);
-		
-		return actions.get((int) (Math.random()*actions.size()));
 	}
 
 	public DirectedGraph<Integer, ActionEdge> OLDcreateRuntimeGraph(Element e) {

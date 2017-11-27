@@ -1,8 +1,11 @@
 package container;
 
 import java.lang.reflect.InvocationTargetException;
+
 import java.lang.reflect.Method;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
@@ -10,7 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jgrapht.DirectedGraph;
-import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DirectedMultigraph;
 
 import framework.basic.Element;
 import framework.configuration.ActionEdge;
@@ -88,14 +91,15 @@ public class ExecutionUnit implements Runnable {
 	public void run() {
 		Set<ActionEdge> nextEdges;
 		ActionEdge nextEdge = null;
-		DirectedGraph<Integer, ActionEdge> graph = new DefaultDirectedGraph<>(ActionEdge.class);
+		//DirectedGraph<Integer, ActionEdge> graph = new DefaultDirectedGraph<>(ActionEdge.class);
+		DirectedGraph<Integer, ActionEdge> graph = new DirectedMultigraph<>(ActionEdge.class);
 		
 		// check if behavior is empty
 		graph = this.element.getSemantics().getGraph();
 		if (graph.vertexSet().isEmpty())
 			new MyError("Behaviour graph of " + element.getIdentification().getName() + " is empty", Utils.FATAL_ERROR)
 					.print();
-
+		
 		// execution loop
 		while (!this.state.compareAndSet(99, 99)) {
 			switch (this.state.get()) {
@@ -103,9 +107,16 @@ public class ExecutionUnit implements Runnable {
 				this.state.getAndSet(2);
 				break;
 			case 2: // processing
-				nextEdges = graph.outgoingEdgesOf(nextVertex);		
-				nextEdge = nextEdges.iterator().next(); // TODO in complete CSP
-				//System.out.println("NextEdge: " + nextEdge.getAction() + "nextVertex" + nextVertex);
+				nextEdges = graph.outgoingEdgesOf(nextVertex);
+			
+				if(nextEdges.size() > 1) {
+					List<ActionEdge> edges = new ArrayList<ActionEdge>(nextEdges);
+					Collections.shuffle(edges);
+					nextEdge = edges.get((int) (Math.random()*edges.size()));
+				} else {
+					nextEdge = nextEdges.iterator().next(); // TODO in complete CSP
+				}
+								
 				executeAction(nextEdge);
 				nextVertex = graph.getEdgeTarget(nextEdge);
 				break;

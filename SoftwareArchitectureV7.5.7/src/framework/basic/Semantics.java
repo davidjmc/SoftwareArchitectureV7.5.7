@@ -7,6 +7,7 @@ import java.util.concurrent.Semaphore;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 
+import container.graph.BehaviourGraph;
 import framework.configuration.ActionEdge;
 import utils.MyError;
 import utils.Utils;
@@ -15,6 +16,7 @@ public class Semantics {
 	private Behaviour standardBehaviour;
 	private Behaviour runtimeBehaviour;
 	private DirectedGraph<Integer, ActionEdge> graph = new DefaultDirectedGraph<>(ActionEdge.class);
+	private BehaviourGraph g = new BehaviourGraph();
 	private final Semaphore semaphore = new Semaphore(1, true);
 
 	public Semantics() {
@@ -150,6 +152,11 @@ public class Semantics {
 
 	public synchronized DirectedGraph<Integer, ActionEdge> getGraph() {
 		return this.graph;
+	}
+	
+	//david
+	public synchronized BehaviourGraph newGetGraph() {
+		return this.g;
 	}
 
 	public synchronized void setGraph(DirectedGraph<Integer, ActionEdge> graph) {
